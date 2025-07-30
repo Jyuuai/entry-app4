@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エントリー根拠</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js CDN for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom styles for the Inter font and smooth background transition */
+        body {
+            font-family: "Inter", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Initial background color, will be updated by JS */
+            background-color: #1a202c; /* Darker background for a cool look */
+            transition: background-color 0.5s ease-in-out; /* Smooth background transition */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex flex-col items-center justify-center min-h-100vh p-4">
+
+    <!-- Main container for the app -->
+    <div id="appContainer" class="p-8 bg-gray-800 shadow-2xl rounded-lg border border-gray-700 flex flex-col items-center space-y-6 max-w-4xl w-full transition-colors duration-500 ease-in-out">
+        <!-- Current Date and Time Display -->
+        <div id="currentDateTimeDisplay" class="text-lg font-bold text-gray-100 mb-4 text-center">
+            <!-- Date and time will be updated by JavaScript -->
+        </div>
+
+        <!-- Controls container for combined buttons/boxes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+            <!-- Combined Button/Box 1 -->
+            <div class="flex flex-col space-y-1">
+                <button id="colorToggleButton1"
+                        class="w-full h-32 flex flex-col items-center justify-center text-2xl font-extrabold text-white
+                               rounded-lg shadow-2xl border-2 border-gray-500 transition-colors duration-500 ease-in-out
+                               bg-red-600"> <!-- Initial color: Red -->
+                    <!-- Text will be set by JavaScript -->
+                </button>
+            </div>
+
+            <!-- Combined Button/Box 2 -->
+            <div class="flex flex-col space-y-1">
+                <button id="colorToggleButton2"
+                        class="w-full h-32 flex flex-col items-center justify-center text-2xl font-extrabold text-white
+                               rounded-lg shadow-2xl border-2 border-gray-500 transition-colors duration-500 ease-in-out
+                               bg-red-600"> <!-- Initial color: Red -->
+                    <!-- Text will be set by JavaScript -->
+                </button>
+            </div>
+
+            <!-- Combined Button/Box 3 -->
+            <div class="flex flex-col space-y-1">
+                <button id="colorToggleButton3"
+                        class="w-full h-32 flex flex-col items-center justify-center text-2xl font-extrabold text-white
+                               rounded-lg shadow-2xl border-2 border-gray-500 transition-colors duration-500 ease-in-out
+                               bg-red-600"> <!-- Initial color: Red -->
+                    <!-- Text will be set by JavaScript -->
+                </button>
+            </div>
+
+            <!-- Combined Button/Box 4 -->
+            <div class="flex flex-col space-y-1">
+                <button id="colorToggleButton4"
+                        class="w-full h-32 flex flex-col items-center justify-center text-2xl font-extrabold text-white
+                               rounded-lg shadow-2xl border-2 border-gray-500 transition-colors duration-500 ease-in-out
+                               bg-red-600"> <!-- Initial color: Red -->
+                    <!-- Text will be set by JavaScript -->
+                </button>
+            </div>
+        </div>
+
+        <!-- New Alarm Section -->
+        <div class="w-full mt-8 pt-6 border-t border-gray-700">
+            <div id="alarmGridContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <!-- Alarm 1 -->
+                <div id="alarmContainer1" class="flex flex-col items-center space-y-1 p-2 rounded-lg shadow-xl border-2 border-gray-500 transition-colors duration-300 ease-in-out bg-gray-800 cursor-pointer justify-center">
+                    <input type="time" id="alarmTime1" class="p-1.5 rounded-md bg-gray-600 text-gray-100 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm transition-colors duration-300 ease-in-out">
+                </div>
+                <!-- Alarm 2 -->
+                <div id="alarmContainer2" class="flex flex-col items-center space-y-1 p-2 rounded-lg shadow-xl border-2 border-gray-500 transition-colors duration-300 ease-in-out bg-gray-800 cursor-pointer justify-center">
+                    <input type="time" id="alarmTime2" class="p-1.5 rounded-md bg-gray-600 text-gray-100 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm transition-colors duration-300 ease-in-out">
+                </div>
+                <!-- Alarm 3 -->
+                <div id="alarmContainer3" class="flex flex-col items-center space-y-1 p-2 rounded-lg shadow-xl border-2 border-gray-500 transition-colors duration-300 ease-in-out bg-gray-800 cursor-pointer justify-center">
+                    <input type="time" id="alarmTime3" class="p-1.5 rounded-md bg-gray-600 text-gray-100 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm transition-colors duration-300 ease-in-out">
+                </div>
+            </div>
+        </div>
+
+        <!-- New Price Movement Calculation Section -->
+        <div class="w-full mt-8 pt-6 border-t border-gray-700">
+            <div id="priceCalculationContainer" class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4 p-3 bg-gray-700 rounded-lg shadow-md border border-gray-600 transition-colors duration-300">
+                <input type="number" id="currentPrice" class="p-1.5 rounded-md bg-gray-600 text-gray-100 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-28" placeholder="現在値">
+                <input type="number" id="targetPrice" class="p-1.5 rounded-md bg-gray-600 text-gray-100 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-28" placeholder="目標値">
+                <div id="priceDifferenceDisplay" class="flex items-center justify-center bg-gray-600 p-1.5 rounded-md border border-gray-500 min-w-[80px] text-center">
+                    <span id="priceDifference" class="text-gray-100 font-bold text-base">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alarm notification message - outside appContainer so it can overlay -->
+    <div id="alarmNotification" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl text-center space-y-4 border border-gray-700">
+            <p id="alarmTitle" class="text-3xl font-bold text-red-500 animate-pulse">エントリー注意！</p>
+            <p id="alarmMessage" class="text-xl text-gray-100"></p>
+            <button id="closeAlarmNotification" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition duration-300">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for alarm sound management
+        let currentPlayingNote = null;
+        let alarmSoundTimeout = null;
+        let isPlayingSound = false;
+        // Initialize Tone.js Synth globally
+        const synth = new Tone.Synth().toDestination();
+
+        // DOMContentLoaded ensures the script runs after the HTML is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Define an array of objects, each representing a button-box pair and their states
+            const toggleElements = [
+                {
+                    buttonId: 'colorToggleButton1',
+                    states: [ // Define states for each button
+                        { colorClass: 'bg-red-600', stateText: '赤', mainText: 'ショート' },
+                        { colorClass: 'bg-blue-600', stateText: '青', mainText: 'ロング' },
+                        { colorClass: 'bg-gray-500', stateText: 'ー', mainText: 'ー' }
+                    ],
+                    currentStateIndex: 2, // Initial state is 'ー' (index 2)
+                    defaultLabel: 'TrendBar'
+                },
+                {
+                    buttonId: 'colorToggleButton2',
+                    states: [
+                        { colorClass: 'bg-red-600', stateText: '赤', mainText: 'ショート' },
+                        { colorClass: 'bg-blue-600', stateText: '青', mainText: 'ロング' },
+                        { colorClass: 'bg-gray-500', stateText: 'ー', mainText: 'ー' }
+                    ],
+                    currentStateIndex: 2, // Initial state is 'ー' (index 2)
+                    defaultLabel: '平均足'
+                },
+                {
+                    buttonId: 'colorToggleButton3',
+                    states: [
+                        { colorClass: 'bg-red-600', stateText: '下', mainText: '下サイン' }, // Special text for index 2
+                        { colorClass: 'bg-blue-600', stateText: '上', mainText: '上サイン' }, // Special text for index 2
+                        { colorClass: 'bg-gray-500', stateText: 'ー', mainText: 'ー' }
+                    ],
+                    currentStateIndex: 2, // Initial state is 'ー' (index 2)
+                    defaultLabel: 'NEOｻｲﾝ'
+                },
+                {
+                    buttonId: 'colorToggleButton4',
+                    states: [
+                        { colorClass: 'bg-red-600', stateText: '下', mainText: '下サイン' }, // Changed from ショート
+                        { colorClass: 'bg-blue-600', stateText: '上', mainText: '上サイン' }, // Changed from ロング
+                        { colorClass: 'bg-gray-500', stateText: 'ー', mainText: 'ー' }
+                    ],
+                    currentStateIndex: 2, // Initial state is 'ー' (index 2)
+                    defaultLabel: 'SPｻｲﾝ'
+                }
+            ];
+
+            const body = document.body;
+            const appContainer = document.getElementById('appContainer');
+            const currentDateTimeDisplay = document.getElementById('currentDateTimeDisplay'); // Get the new display element
+
+            // Define color schemes for different states
+            const colorSchemes = {
+                default: {
+                    bodyBg: 'bg-gray-900',
+                    containerBg: 'bg-gray-800',
+                    containerBorder: 'border-gray-700',
+                    text: 'text-gray-100', // General text color for elements that change
+                },
+                allRed: {
+                    bodyBg: 'bg-red-900',
+                    containerBg: 'bg-red-800',
+                    containerBorder: 'border-red-700',
+                    text: 'text-red-100',
+                },
+                allBlue: {
+                    bodyBg: 'bg-blue-900',
+                    containerBg: 'bg-blue-800',
+                    containerBorder: 'border-blue-700',
+                    text: 'text-blue-100',
+                }
+            };
+
+            /**
+             * Updates the overall color scheme of the app based on the state of the buttons.
+             */
+            function updateOverallColorScheme() {
+                let allBlue = true;
+                let allRed = true;
+                let hasNeutral = false; // Track if any button is in 'ー' state
+
+                toggleElements.forEach(element => {
+                    const button = document.getElementById(element.buttonId);
+                    const currentState = element.states[element.currentStateIndex];
+
+                    if (currentState.colorClass === 'bg-gray-500') {
+                        hasNeutral = true;
+                    }
+
+                    if (currentState.colorClass !== 'bg-blue-600') {
+                        allBlue = false;
+                    }
+                    if (currentState.colorClass !== 'bg-red-600') {
+                        allRed = false;
+                    }
+                });
+
+                let currentScheme;
+                if (hasNeutral || (!allRed && !allBlue)) { // If mixed or any neutral, use default
+                    currentScheme = colorSchemes.default;
+                } else if (allBlue) {
+                    currentScheme = colorSchemes.allBlue;
+                } else if (allRed) {
+                    currentScheme = colorSchemes.allRed;
+                }
+
+                // Apply body background
+                Object.values(colorSchemes).forEach(scheme => {
+                    body.classList.remove(scheme.bodyBg);
+                });
+                body.classList.add(currentScheme.bodyBg);
+
+                // Apply container background and border
+                Object.values(colorSchemes).forEach(scheme => {
+                    appContainer.classList.remove(scheme.containerBg, scheme.containerBorder);
+                });
+                appContainer.classList.add(currentScheme.containerBg, currentScheme.containerBorder);
+            }
+
+            /**
+             * Checks the state of the first two switches and disables/enables the last two accordingly.
+             */
+            function checkLeftSwitchesAndDisableRightButtons() {
+                const button1 = document.getElementById(toggleElements[0].buttonId);
+                const button2 = document.getElementById(toggleElements[1].buttonId);
+                const button3 = document.getElementById(toggleElements[2].buttonId);
+                const button4 = document.getElementById(toggleElements[3].buttonId);
+
+                // Get current color classes of the first two buttons
+                const color1 = toggleElements[0].states[toggleElements[0].currentStateIndex].colorClass;
+                const color2 = toggleElements[1].states[toggleElements[1].currentStateIndex].colorClass;
+                // Get current color class of the third button (NEOサイン)
+                const color3 = toggleElements[2].states[toggleElements[2].currentStateIndex].colorClass;
+
+                // --- Logic for button 3 (NEOサイン) ---
+                // button3 is enabled ONLY IF color1 === color2
+                if (color1 !== color2) {
+                    button3.disabled = true;
+                    button3.classList.add('opacity-50', 'cursor-not-allowed');
+                    // Set to neutral state when disabled
+                    if (toggleElements[2].currentStateIndex !== 2) { // Only change if not already neutral
+                        toggleElements[2].currentStateIndex = 2;
+                        updateButtonDisplay(toggleElements[2]);
+                    }
+                } else {
+                    button3.disabled = false;
+                    button3.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                // --- Logic for button 4 (SPサイン) ---
+                // button4 is enabled ONLY IF color1 === color2 AND color2 === color3
+                if (!(color1 === color2 && color2 === color3)) {
+                    button4.disabled = true;
+                    button4.classList.add('opacity-50', 'cursor-not-allowed');
+                    // Set to neutral state when disabled
+                    if (toggleElements[3].currentStateIndex !== 2) { // Only change if not already neutral
+                        toggleElements[3].currentStateIndex = 2;
+                        updateButtonDisplay(toggleElements[3]);
+                    }
+                } else {
+                    button4.disabled = false;
+                    button4.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Function to update a specific button's text and color based on its state
+            function updateButtonDisplay(element) {
+                const button = document.getElementById(element.buttonId);
+                const currentLabel = element.defaultLabel;
+                const currentState = element.states[element.currentStateIndex];
+
+                // Remove all possible color classes before adding the current one
+                element.states.forEach(state => {
+                    button.classList.remove(state.colorClass);
+                });
+                button.classList.add(currentState.colorClass);
+
+                // Determine the font size for the label and main text
+                let labelFontSizeClass = 'text-base'; // Default font size for label
+                let mainTextFontSizeClass = 'text-3xl'; // Default font size for mainText
+
+                // Adjust mainText font size if it's 'ー'
+                if (currentState.mainText === 'ー') {
+                    mainTextFontSizeClass = 'text-5xl'; // Larger font size for 'ー' to make it prominent
+                }
+
+                // Update the button's inner HTML to display both label and main text
+                button.innerHTML = `
+                    <span class="${labelFontSizeClass} font-normal">${currentLabel}: ${currentState.stateText}</span>
+                    <span class="${mainTextFontSizeClass} font-extrabold">${currentState.mainText}</span>
+                `;
+            }
+
+
+            // Loop through each toggle element to set up event listeners for buttons
+            toggleElements.forEach((element, index) => {
+                const button = document.getElementById(element.buttonId);
+
+                // Initial state: Set button text and color
+                // Set initial state to neutral (index 2) for all top 4 buttons
+                element.currentStateIndex = 2; // Set to 'ー' state
+                updateButtonDisplay(element); // Pass the element object
+
+                // Add a click event listener to each button
+                button.addEventListener('click', () => {
+                    // Only allow click if button is not disabled
+                    if (!button.disabled) {
+                        // Cycle to the next state
+                        element.currentStateIndex = (element.currentStateIndex + 1) % element.states.length;
+                        updateButtonDisplay(element); // Pass the element object
+                        updateOverallColorScheme(); // Check and update overall app color scheme
+                        checkLeftSwitchesAndDisableRightButtons(); // Check and update right buttons' state
+                    }
+                });
+            });
+
+            // Initial calls to set the overall app color scheme and button states
+            updateOverallColorScheme();
+            checkLeftSwitchesAndDisableRightButtons(); // Initial check for right buttons
+
+            // --- Current Date and Time Display Functionality ---
+            function updateCurrentDateTime() {
+                const now = new Date();
+                const optionsDate = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const weekdayOptions = { weekday: 'short' }; // 'short' for abbreviated day name
+
+                const dateString = now.toLocaleDateString('ja-JP', optionsDate);
+                const timeString = now.toLocaleTimeString('ja-JP', optionsTime);
+                const weekdayString = now.toLocaleDateString('ja-JP', weekdayOptions);
+
+                currentDateTimeDisplay.textContent = `${dateString} (${weekdayString}) ${timeString}`;
+            }
+
+            // Update date and time every second
+            setInterval(updateCurrentDateTime, 1000);
+            updateCurrentDateTime(); // Initial call to display immediately
+
+
+            // --- Alarm Functionality ---
+            const alarms = [
+                { id: 'alarm1', timeInputId: 'alarmTime1', containerId: 'alarmContainer1', time: '', enabled: false, triggeredToday: false, triggeredPreAlarmToday: false, lastCheckedDate: '' },
+                { id: 'alarm2', timeInputId: 'alarmTime2', containerId: 'alarmContainer2', time: '', enabled: false, triggeredToday: false, triggeredPreAlarmToday: false, lastCheckedDate: '' },
+                { id: 'alarm3', timeInputId: 'alarmTime3', containerId: 'alarmContainer3', time: '', enabled: false, triggeredToday: false, triggeredPreAlarmToday: false, lastCheckedDate: '' }
+            ];
+
+            const alarmNotification = document.getElementById('alarmNotification');
+            const alarmTitleDisplay = document.getElementById('alarmTitle'); // Get the alarm title element
+            const alarmMessageDisplay = document.getElementById('alarmMessage');
+            const closeAlarmNotificationButton = document.getElementById('closeAlarmNotification');
+
+            // Function to play alarm sound
+            function playAlarmSound(isPreAlarm) {
+                if (!isPlayingSound) {
+                    isPlayingSound = true;
+                    const noteToPlay = isPreAlarm ? "C4" : "G4";
+                    const duration = "8n"; // A short duration (e.g., an eighth note)
+
+                    // Ensure AudioContext is running before trying to play
+                    if (Tone.context.state !== 'running') {
+                        Tone.start().then(() => {
+                            console.log("AudioContext resumed for playing sound (via triggerAttackRelease).");
+                            synth.triggerAttackRelease(noteToPlay, duration);
+                            // Since triggerAttackRelease handles its own release,
+                            // we just need to reset isPlayingSound after the duration.
+                            alarmSoundTimeout = setTimeout(() => { // Store timeout ID
+                                isPlayingSound = false;
+                            }, Tone.Time(duration).toMilliseconds()); // Convert Tone.js duration to milliseconds
+                        }).catch(e => {
+                            console.error("Failed to start AudioContext for playing sound:", e);
+                            isPlayingSound = false;
+                        });
+                    } else {
+                        synth.triggerAttackRelease(noteToPlay, duration);
+                        // Reset isPlayingSound after the duration
+                        alarmSoundTimeout = setTimeout(() => { // Store timeout ID
+                            isPlayingSound = false;
+                        }, Tone.Time(duration).toMilliseconds());
+                    }
+                }
+            }
+
+            // Function to stop alarm sound - now simpler as triggerAttackRelease handles release
+            function stopAlarmSound() {
+                if (isPlayingSound) {
+                    isPlayingSound = false;
+                    // If there was a timeout for isPlayingSound reset, clear it.
+                    if (alarmSoundTimeout) {
+                        clearTimeout(alarmSoundTimeout);
+                        alarmSoundTimeout = null; // Clear the reference
+                    }
+                    // No need to call synth.triggerRelease() as triggerAttackRelease handles it.
+                    // The sound will fade out naturally if it was playing.
+                }
+            }
+
+            // --- Global Daily Alarm Settings Reset Logic ---
+            const lastAlarmSettingsResetTimestampKey = 'lastAlarmSettingsResetTimestamp';
+            let lastAlarmSettingsResetTimestamp = localStorage.getItem(lastAlarmSettingsResetTimestampKey);
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentDay = now.getDate();
+            const currentHour = now.getHours();
+
+            const todaySixAM = new Date(currentYear, currentMonth, currentDay, 6, 0, 0);
+
+            let shouldPerformGlobalReset = false;
+
+            if (!lastAlarmSettingsResetTimestamp) {
+                if (now.getTime() >= todaySixAM.getTime()) {
+                    shouldPerformGlobalReset = true;
+                }
+            } else {
+                const lastResetDate = new Date(parseInt(lastAlarmSettingsResetTimestamp));
+                const lastResetYear = lastResetDate.getFullYear();
+                const lastResetMonth = lastResetDate.getMonth();
+                const lastResetDay = lastResetDate.getDate();
+
+                if (currentYear > lastResetYear ||
+                    (currentYear === lastResetYear && currentMonth > lastResetMonth) ||
+                    (currentYear === lastResetYear && currentMonth === lastResetMonth && currentDay > lastResetDay)) {
+                    if (now.getTime() >= todaySixAM.getTime()) {
+                        shouldPerformGlobalReset = true;
+                    }
+                }
+                else if (currentYear === lastResetYear && currentMonth === lastResetMonth && currentDay === lastResetDay) {
+                    const lastCheckSixAM = new Date(lastResetYear, lastResetMonth, lastResetDay, 6, 0, 0);
+                    if (lastResetDate.getTime() < lastCheckSixAM.getTime() && now.getTime() >= lastCheckSixAM.getTime()) {
+                        shouldPerformGlobalReset = true;
+                    }
+                }
+            }
+
+            localStorage.setItem(lastAlarmSettingsResetTimestampKey, now.getTime().toString());
+
+            // Load alarms from localStorage or set defaults
+            function loadAlarms() {
+                const storedAlarms = localStorage.getItem('myAppAlarms');
+                if (storedAlarms) {
+                    const parsedAlarms = JSON.parse(storedAlarms);
+                    parsedAlarms.forEach((storedAlarm, index) => {
+                        if (alarms[index]) {
+                            if (shouldPerformGlobalReset) {
+                                alarms[index].time = '';
+                                alarms[index].enabled = false;
+                                alarms[index].triggeredToday = false;
+                                alarms[index].triggeredPreAlarmToday = false;
+                            } else {
+                                alarms[index].time = storedAlarm.time || '';
+                                alarms[index].enabled = storedAlarm.enabled || false;
+                                alarms[index].triggeredToday = storedAlarm.triggeredToday || false;
+                                alarms[index].triggeredPreAlarmToday = storedAlarm.triggeredPreAlarmToday || false;
+                            }
+
+                            const currentDayString = (new Date()).toDateString();
+                            if (storedAlarm.lastCheckedDate !== currentDayString) {
+                                alarms[index].triggeredToday = false;
+                                alarms[index].triggeredPreAlarmToday = false;
+                            }
+                            alarms[index].lastCheckedDate = currentDayString;
+                        }
+                    });
+                } else {
+                    if (shouldPerformGlobalReset) {
+                        alarms.forEach(alarm => {
+                            alarm.time = '';
+                            alarm.enabled = false;
+                            alarm.triggeredToday = false;
+                            alarm.triggeredPreAlarmToday = false;
+                            alarm.lastCheckedDate = (new Date()).toDateString();
+                        });
+                    }
+                }
+
+                alarms.forEach(alarm => {
+                    const timeInput = document.getElementById(alarm.timeInputId);
+                    if (timeInput) timeInput.value = alarm.time;
+                    updateAlarmDisplay(alarm); // Use updateAlarmDisplay for the div
+                });
+                saveAlarms();
+            }
+
+            function saveAlarms() {
+                localStorage.setItem('myAppAlarms', JSON.stringify(alarms));
+            }
+
+            // Function to update the alarm display div's text and color based on its state
+            function updateAlarmDisplay(alarm) {
+                const alarmContainer = document.getElementById(alarm.containerId); // This is the main container for the alarm
+                const alarmTimeInput = document.getElementById(alarm.timeInputId); // The time input itself
+
+                if (!alarmContainer || !alarmTimeInput) return;
+
+                // Remove existing color classes from the container
+                alarmContainer.classList.remove('bg-yellow-900', 'border-yellow-700', 'bg-gray-800', 'border-gray-700');
+
+                // Add new color class based on enabled state
+                if (alarm.enabled) {
+                    alarmContainer.classList.add('bg-yellow-900', 'border-yellow-700'); // Yellow when ON
+                } else {
+                    alarmContainer.classList.add('bg-gray-800', 'border-gray-700'); // Gray when OFF
+                }
+                // The time is displayed directly in the input field.
+                // The input field's background color (bg-gray-600) remains constant for readability.
+            }
+
+            // Check alarms every second
+            function checkAlarms() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentTimeInMinutes = currentHour * 60 + currentMinute;
+                const currentDate = now.toDateString();
+
+                alarms.forEach(alarm => {
+                    if (alarm.enabled && alarm.time) {
+                        if (alarm.lastCheckedDate !== currentDate) {
+                            alarm.triggeredToday = false;
+                            alarm.triggeredPreAlarmToday = false;
+                        }
+                        alarm.lastCheckedDate = currentDate; // Always update lastCheckedDate
+                        saveAlarms(); // Save the date change
+
+                        const [alarmHour, alarmMinute] = alarm.time.split(':').map(Number);
+                        const alarmTimeInMinutes = alarmHour * 60 + alarmMinute;
+                        const preAlarmTimeInMinutes = alarmTimeInMinutes - 5;
+
+                        // Handle pre-alarm
+                        if (currentTimeInMinutes === preAlarmTimeInMinutes && !alarm.triggeredPreAlarmToday) {
+                            alarm.triggeredPreAlarmToday = true;
+                            saveAlarms();
+                            showAlarmNotification(alarm.time, true, alarm);
+                            playAlarmSound(true);
+                        }
+
+                        // Handle main alarm
+                        if (currentTimeInMinutes === alarmTimeInMinutes && !alarm.triggeredToday) {
+                            alarm.triggeredToday = true;
+                            saveAlarms();
+                            showAlarmNotification(alarm.time, false, alarm);
+                            playAlarmSound(false);
+                        }
+                    }
+                });
+            }
+
+            function showAlarmNotification(triggeredTime, isPreAlarm, triggeredAlarm) {
+                if (isPreAlarm) {
+                    alarmTitleDisplay.textContent = 'エントリー注意！ (5分前)';
+                    alarmTitleDisplay.classList.remove('text-red-500');
+                    alarmTitleDisplay.classList.add('text-orange-400');
+                    alarmMessageDisplay.textContent = `設定時刻: ${triggeredTime}`;
+                } else {
+                    alarmTitleDisplay.textContent = 'エントリー注意！';
+                    alarmTitleDisplay.classList.remove('text-orange-400');
+                    alarmTitleDisplay.classList.add('text-red-500');
+                    alarmMessageDisplay.textContent = `設定時刻: ${triggeredTime}`;
+                }
+                alarmNotification.classList.remove('hidden');
+
+                // Reset the alarm after it triggers
+                if (triggeredAlarm) {
+                    triggeredAlarm.enabled = false;
+                    triggeredAlarm.time = '';
+                    triggeredAlarm.triggeredToday = false;
+                    triggeredAlarm.triggeredPreAlarmToday = false;
+                    saveAlarms();
+                    updateAlarmDisplay(triggeredAlarm);
+                    updateAlarmOrder();
+                }
+            }
+
+            closeAlarmNotificationButton.addEventListener('click', () => {
+                alarmNotification.classList.add('hidden');
+                stopAlarmSound(); // Stop sound when dismissed
+            });
+
+            // --- Global AudioContext Start on First User Interaction ---
+            const startAudioContext = () => {
+                if (Tone.context.state !== 'running') {
+                    Tone.start().then(() => {
+                        console.log("AudioContext started successfully on user interaction.");
+                    }).catch(e => {
+                        console.error("Failed to start AudioContext on user interaction:", e);
+                    });
+                }
+                document.body.removeEventListener('mousedown', startAudioContext);
+                document.body.removeEventListener('touchstart', startAudioContext);
+            };
+
+            document.body.addEventListener('mousedown', startAudioContext);
+            document.body.addEventListener('touchstart', startAudioContext);
+
+            // Removed Global Click to Turn Off Alarms
+            // document.body.addEventListener('click', (event) => { /* ... */ });
+
+
+            // Set up alarm UI and event listeners
+            alarms.forEach(alarm => {
+                const timeInput = document.getElementById(alarm.timeInputId);
+                const alarmContainer = document.getElementById(alarm.containerId); // Get the container div
+
+                if (timeInput) {
+                    timeInput.addEventListener('change', (event) => {
+                        alarm.time = event.target.value;
+                        // Automatically enable alarm when time is set
+                        if (alarm.time) {
+                            alarm.enabled = true;
+                        } else {
+                            alarm.enabled = false; // If time is cleared, disable
+                        }
+                        saveAlarms();
+                        updateAlarmDisplay(alarm); // Update display when time changes
+                        updateAlarmOrder(); // Update order after time change
+                    });
+                }
+
+                if (alarmContainer) { // Attach click listener to the container div
+                    alarmContainer.addEventListener('click', (event) => {
+                        // Prevent toggling if the click originated from the time input itself
+                        if (event.target !== timeInput) {
+                            // Toggle alarm.enabled state directly
+                            alarm.enabled = !alarm.enabled;
+                            saveAlarms();
+                            updateAlarmDisplay(alarm);
+                            updateAlarmOrder();
+                            // If audio context is suspended, resume it on user interaction
+                            if (Tone.context.state !== 'running') {
+                                Tone.start().then(() => console.log("AudioContext resumed from alarm container click.")).catch(e => console.error("Failed to resume AudioContext on alarm click:", e));
+                            }
+                        }
+                    });
+                }
+            });
+
+            // --- Alarm Order Update Function ---
+            function updateAlarmOrder() {
+                const alarmGridContainer = document.getElementById('alarmGridContainer');
+                if (!alarmGridContainer) return;
+
+                // Sort the alarms array by time
+                alarms.sort((a, b) => {
+                    // Handle empty time by pushing them to the end
+                    if (!a.time && !b.time) return 0;
+                    if (!a.time) return 1; // a has no time, b has time, a comes after b
+                    if (!b.time) return -1; // b has no time, a has time, b comes after a
+
+                    // Compare times
+                    const [aHour, aMinute] = a.time.split(':').map(Number);
+                    const [bHour, bMinute] = b.time.split(':').map(Number);
+
+                    if (aHour !== bHour) {
+                        return aHour - bHour;
+                    }
+                    return aMinute - bMinute;
+                });
+
+                // Re-append the alarm containers to the DOM in the new sorted order
+                // This effectively reorders them without recreating them
+                alarms.forEach(alarm => {
+                    const container = document.getElementById(alarm.containerId);
+                    if (container) {
+                        alarmGridContainer.appendChild(container);
+                    }
+                });
+            }
+
+            // --- Price Movement Calculation Functionality ---
+            const currentPriceInput = document.getElementById('currentPrice');
+            const targetPriceInput = document.getElementById('targetPrice');
+            const priceCalculationContainer = document.getElementById('priceCalculationContainer'); // Get the main calculation container
+            const priceDifferenceDisplayDiv = document.getElementById('priceDifferenceDisplay'); // Get the div containing the result
+            const priceDifferenceSpan = document.getElementById('priceDifference');
+
+            // Function to perform calculation
+            function performCalculation() {
+                const currentPrice = parseFloat(currentPriceInput.value);
+                const targetPrice = parseFloat(targetPriceInput.value);
+
+                // Reset color classes for the *main calculation container*
+                priceCalculationContainer.classList.remove('bg-red-600', 'bg-blue-600');
+                priceCalculationContainer.classList.add('bg-gray-700'); // Default gray for the main container
+
+                // Reset color classes for the *priceDifferenceDisplayDiv*
+                priceDifferenceDisplayDiv.classList.remove('bg-red-600', 'bg-blue-600');
+                priceDifferenceDisplayDiv.classList.add('bg-gray-600'); // Default gray for the result display div
+
+                // Reset text color for the span displaying the difference
+                priceDifferenceSpan.classList.remove('text-red-100', 'text-blue-100');
+                priceDifferenceSpan.classList.add('text-gray-100');
+
+
+                if (isNaN(currentPrice) || isNaN(targetPrice)) {
+                    priceDifferenceSpan.textContent = "--"; // Reset to default if input is invalid
+                    return;
+                }
+
+                const difference = targetPrice - currentPrice;
+                
+                // 小数点以下第3桁まで表示
+                priceDifferenceSpan.textContent = difference.toFixed(3);
+
+                // Change background color of the *priceCalculationContainer* based on the sign of the difference
+                if (difference < 0) {
+                    priceCalculationContainer.classList.remove('bg-gray-700'); // Remove default gray
+                    priceCalculationContainer.classList.add('bg-red-600'); // Negative: Red
+                    
+                    priceDifferenceDisplayDiv.classList.remove('bg-gray-600'); // Remove default gray for result box
+                    priceDifferenceDisplayDiv.classList.add('bg-red-600'); // Negative: Red for result box
+
+                    priceDifferenceSpan.classList.remove('text-gray-100');
+                    priceDifferenceSpan.classList.add('text-red-100'); // Negative: Red text
+                } else if (difference > 0) {
+                    priceCalculationContainer.classList.remove('bg-gray-700'); // Remove default gray
+                    priceCalculationContainer.classList.add('bg-blue-600'); // Positive: Blue
+
+                    priceDifferenceDisplayDiv.classList.remove('bg-gray-600'); // Remove default gray for result box
+                    priceDifferenceDisplayDiv.classList.add('bg-blue-600'); // Positive: Blue for result box
+
+                    priceDifferenceSpan.classList.remove('text-gray-100');
+                    priceDifferenceSpan.classList.add('text-blue-100'); // Positive: Blue text
+                }
+                // If difference is 0, both remain gray-700 (default) and text-gray-100 (default)
+            }
+
+            // Add event listeners for automatic calculation on input change
+            currentPriceInput.addEventListener('input', performCalculation);
+            targetPriceInput.addEventListener('input', performCalculation);
+
+            // Load saved current price on initial load
+            const savedCurrentPrice = localStorage.getItem('currentPrice');
+            if (savedCurrentPrice) {
+                currentPriceInput.value = savedCurrentPrice;
+                performCalculation(); // Perform calculation with loaded value
+            }
+
+            // Save current price to localStorage whenever it changes
+            currentPriceInput.addEventListener('input', () => {
+                localStorage.setItem('currentPrice', currentPriceInput.value);
+            });
+
+
+            // Initial load of alarms
+            loadAlarms();
+
+            // Initial call to update alarm order
+            updateAlarmOrder();
+
+            // Start checking alarms
+            setInterval(checkAlarms, 1000); // Check every second
+        });
+    </script>
+</body>
+</html>
